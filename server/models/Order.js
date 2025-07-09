@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const orderItemSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['book', 'package'],
+    enum: ['book', 'package', 'event'],
     required: true
   },
   book: {
@@ -13,6 +13,10 @@ const orderItemSchema = new mongoose.Schema({
   package: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Package'
+  },
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
   },
   packageCustomizations: {
     printedCopies: { type: Number, default: 0 },

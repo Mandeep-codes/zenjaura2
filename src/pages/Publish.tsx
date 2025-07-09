@@ -17,6 +17,7 @@ interface FormData {
   title: string;
   synopsis: string;
   genre: string;
+  price: number;
   publishingPackage: string;
   tags: string;
   coAuthors: string;
@@ -36,23 +37,6 @@ const Publish = () => {
     'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy',
     'Biography', 'History', 'Self-Help', 'Business', 'Poetry', 'Children', 'Other'
   ];
-  <div>
-  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-    Set Price (in ₹) *
-  </label>
-  <input
-    type="number"
-    {...register('price', {
-      required: 'Price is required',
-      min: { value: 1, message: 'Minimum price is ₹1' }
-    })}
-    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-    placeholder="Enter price for your book"
-  />
-  {errors.price && (
-    <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
-  )}
-</div>
 
 
   useEffect(() => {
@@ -81,6 +65,7 @@ const Publish = () => {
       formData.append('title', data.title);
       formData.append('synopsis', data.synopsis);
       formData.append('genre', data.genre);
+      formData.append('price', data.price.toString());
       formData.append('publishingPackage', selectedPackage);
       formData.append('tags', JSON.stringify(data.tags.split(',').map(tag => tag.trim()).filter(Boolean)));
       formData.append('coAuthors', JSON.stringify([]));
@@ -255,13 +240,22 @@ const Publish = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Co-Authors (comma-separated)
+                  Book Price ($) *
                 </label>
                 <input
-                  {...register('coAuthors')}
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  {...register('price', {
+                    required: 'Price is required',
+                    min: { value: 0.01, message: 'Minimum price is $0.01' }
+                  })}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  placeholder="John Doe, Jane Smith"
+                  placeholder="Enter book price"
                 />
+                {errors.price && (
+                  <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
+                )}
               </div>
             </div>
 

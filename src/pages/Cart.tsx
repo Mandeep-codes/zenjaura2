@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, Calendar } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
 const Cart = () => {
@@ -85,6 +85,10 @@ const Cart = () => {
                         alt={item.book.title}
                         className="w-16 h-20 object-cover rounded-lg"
                       />
+                    ) : item.type === 'event' && item.event ? (
+                      <div className="w-16 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                      </div>
                     ) : (
                       <div className="w-16 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center">
                         <ShoppingCart className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
@@ -95,7 +99,9 @@ const Cart = () => {
                   {/* Item Details */}
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {item.type === 'book' ? item.book?.title : item.package?.name}
+                      {item.type === 'book' ? item.book?.title : 
+                       item.type === 'event' ? item.event?.title : 
+                       item.package?.name}
                     </h3>
                     
                     {item.type === 'book' && item.book && (
@@ -104,6 +110,12 @@ const Cart = () => {
                       </p>
                     )}
 
+                    {item.type === 'event' && item.event && (
+                      <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        <p>{new Date(item.event.startDate).toLocaleDateString()}</p>
+                        <p>{item.event.location}</p>
+                      </div>
+                    )}
                     {item.type === 'package' && item.packageCustomizations && (
                       <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         <p>Printed Copies: {item.packageCustomizations.printedCopies}</p>
@@ -113,23 +125,29 @@ const Cart = () => {
 
                     <div className="flex items-center justify-between mt-4">
                       {/* Quantity Controls */}
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => updateQuantity(item._id!, Math.max(1, item.quantity - 1))}
-                          className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="font-medium text-gray-900 dark:text-white min-w-[2rem] text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item._id!, item.quantity + 1)}
-                          className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
+                      {item.type === 'event' ? (
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          Event Registration
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => updateQuantity(item._id!, Math.max(1, item.quantity - 1))}
+                            className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="font-medium text-gray-900 dark:text-white min-w-[2rem] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item._id!, item.quantity + 1)}
+                            className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
 
                       {/* Price and Remove */}
                       <div className="flex items-center space-x-4">

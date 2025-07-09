@@ -6,6 +6,7 @@ import axios from '../contexts/axiosInstance.js';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext'; // ✅ Import useAuth
+import { useCart } from '../contexts/CartContext';
 
 interface Event {
   _id: string;
@@ -34,6 +35,7 @@ const Events = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const { user } = useAuth(); // ✅ Access current user
+  const { addToCart } = useCart();
 
   const categories = [
     'All', 'Workshop', 'Seminar', 'Book Launch', 'Reading', 'Conference', 'Other'
@@ -78,6 +80,31 @@ const Events = () => {
 
   const isEventFull = (event: Event) => {
     return event.maxAttendees > 0 && event.registeredUsers.length >= event.maxAttendees;
+  };
+
+  const handleAddToCart = async (event: Event) => {
+    if (event.price === 0) {
+      // Free event - register directly
+      try {
+        await axios.post(`/api/events/${event._id}/register`);
+        toast.success('Successfully registered for free event!');
+        fetchEvents(); // Refresh events
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Failed to register for event');
+      }
+    } else {
+      // Paid event - add to cart
+      try {
+        await addToCart({
+          type: 'event',
+          event: event._id,
+          quantity: 1,
+          price: event.price
+        });
+      } catch (error) {
+        // Error handled in context
+      }
+    }
   };
 
   return (
@@ -239,16 +266,22 @@ const Events = () => {
                     <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                       {event.price === 0 ? 'Free' : `$${event.price}`}
                     </div>
-                    <Link
-                      to={`/events/${event.slug}`}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        isEventFull(event)
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                      }`}
-                    >
-                      {isEventFull(event) ? 'Full' : 'View Details'}
-                    </Link>
+                    <div className="flex space-x-2">
+                      <Link
+                        to={`/events/${event.slug}`}
+                        className="px-3 py-2 border border-emerald-600 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors text-sm"
+                      >
+                        Details
+                      </Link>
+                      {!isEventFull(event) && (
+                        <button
+                          onClick={() => handleAddToCart(event)}
+                          className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+                        >
+                          {event.price === 0 ? 'Register' : 'Add to Cart'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>

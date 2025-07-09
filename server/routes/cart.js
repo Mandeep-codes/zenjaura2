@@ -2,6 +2,7 @@ import express from 'express';
 import Cart from '../models/Cart.js';
 import Book from '../models/Book.js';
 import Package from '../models/Package.js';
+import Event from '../models/Event.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -11,7 +12,8 @@ router.get('/', protect, async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user.id })
       .populate('items.book', 'title coverImage price author')
-      .populate('items.package', 'name basePrice features');
+      .populate('items.package', 'name basePrice features')
+      .populate('items.event', 'title startDate location price');
 
     if (!cart) {
       cart = await Cart.create({ user: req.user.id, items: [] });
@@ -26,7 +28,7 @@ router.get('/', protect, async (req, res) => {
 // Add item to cart
 router.post('/add', protect, async (req, res) => {
   try {
-    const { type, book, package: packageId, quantity = 1, packageCustomizations } = req.body;
+    const { type, book, package: packageId, event: eventId, quantity = 1, packageCustomizations } = req.body;
 
     let cart = await Cart.findOne({ user: req.user.id });
     if (!cart) {
@@ -62,15 +64,40 @@ router.post('/add', protect, async (req, res) => {
           price += extraPages * packageDoc.addOns.extraPages.pricePerPage;
         }
       }
+    } else if (type === 'event') {
+      const Event = (await import('../models/Event.js')).default;
+      const eventDoc = await Event.findById(eventId);
+      if (!eventDoc) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+      
+      // Check if event is full
+      if (eventDoc.maxAttendees > 0 && eventDoc.registeredUsers.length >= eventDoc.maxAttendees) {
+        return res.status(400).json({ message: 'Event is full' });
+      }
+      
+      // Check if already registered
+      const alreadyRegistered = eventDoc.registeredUsers.some(
+        reg => reg.user.toString() === req.user.id
+      );
+      
+      if (alreadyRegistered) {
+        return res.status(400).json({ message: 'Already registered for this event' });
+      }
+      
+      price = eventDoc.price;
     }
 
     // Check if item already exists
     const existingItemIndex = cart.items.findIndex(item => {
       if (type === 'book') {
         return item.type === 'book' && item.book?.toString() === book;
-      } else {
+      } else if (type === 'package') {
         return item.type === 'package' && item.package?.toString() === packageId;
+      } else if (type === 'event') {
+        return item.type === 'event' && item.event?.toString() === eventId;
       }
+      return false;
     });
 
     if (existingItemIndex > -1) {
@@ -80,7 +107,9 @@ router.post('/add', protect, async (req, res) => {
         type,
         quantity,
         price,
-        ...(type === 'book' ? { book } : { package: packageId }),
+        ...(type === 'book' ? { book } : 
+           type === 'package' ? { package: packageId } : 
+           { event: eventId }),
         ...(packageCustomizations && { packageCustomizations })
       };
       cart.items.push(newItem);
@@ -91,6 +120,7 @@ router.post('/add', protect, async (req, res) => {
 
     await cart.populate('items.book', 'title coverImage price author');
     await cart.populate('items.package', 'name basePrice features');
+    await cart.populate('items.event', 'title startDate location price');
 
     res.json(cart);
   } catch (error) {
@@ -124,6 +154,7 @@ router.put('/update/:itemId', protect, async (req, res) => {
 
     await cart.populate('items.book', 'title coverImage price author');
     await cart.populate('items.package', 'name basePrice features');
+    await cart.populate('items.event', 'title startDate location price');
 
     res.json(cart);
   } catch (error) {
@@ -145,6 +176,7 @@ router.delete('/remove/:itemId', protect, async (req, res) => {
 
     await cart.populate('items.book', 'title coverImage price author');
     await cart.populate('items.package', 'name basePrice features');
+    await cart.populate('items.event', 'title startDate location price');
 
     res.json(cart);
   } catch (error) {

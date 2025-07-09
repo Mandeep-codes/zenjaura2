@@ -5,9 +5,10 @@ import { useAuth } from './AuthContext';
 
 interface CartItem {
   _id?: string;
-  type: 'book' | 'package';
+  type: 'book' | 'package' | 'event';
   book?: any;
   package?: any;
+  event?: any;
   packageCustomizations?: {
     printedCopies: number;
     totalPages: number;

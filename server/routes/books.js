@@ -134,7 +134,7 @@ router.post(
     }
 
     try {
-      const { title, synopsis, genre, publishingPackage, tags, coAuthors } = req.body;
+      const { title, synopsis, genre, price, publishingPackage, tags, coAuthors } = req.body;
 
       if (!req.files?.coverImage || !req.files?.manuscriptFile) {
         return res.status(400).json({ message: 'Cover image and manuscript file are required' });
@@ -160,7 +160,7 @@ router.post(
         manuscriptFile: req.files.manuscriptFile[0].path,
         publishingPackage,
         tags: parsedTags,
-        price: 0,
+        price: parseFloat(price) || 0,
         status: 'pending'
       });
 
@@ -211,11 +211,11 @@ router.get('/admin/all', protect, admin, async (req, res) => {
 
 router.put('/admin/:id/status', protect, admin, async (req, res) => {
   try {
-    const { status, adminFeedback, price } = req.body;
+    const { status, adminFeedback } = req.body;
     
     const book = await Book.findByIdAndUpdate(
       req.params.id,
-      { status, adminFeedback, ...(price && { price }) },
+      { status, adminFeedback },
       { new: true }
     ).populate('author', 'name email');
 
@@ -223,6 +223,39 @@ router.put('/admin/:id/status', protect, admin, async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
+    // If book is approved, add publishing package to user's cart automatically
+    if (status === 'approved') {
+      const Cart = (await import('../models/Cart.js')).default;
+      let cart = await Cart.findOne({ user: book.author._id });
+      
+      if (!cart) {
+        cart = await Cart.create({ user: book.author._id, items: [] });
+      }
+
+      // Check if package already in cart for this book
+      const existingItem = cart.items.find(item => 
+        item.type === 'package' && 
+        item.package?.toString() === book.publishingPackage.toString()
+      );
+
+      if (!existingItem) {
+        const Package = (await import('../models/Package.js')).default;
+        const packageDoc = await Package.findById(book.publishingPackage);
+        
+        if (packageDoc) {
+          cart.items.push({
+            type: 'package',
+            package: book.publishingPackage,
+            quantity: 1,
+            price: packageDoc.basePrice,
+            bookId: book._id // Reference to the approved book
+          });
+          
+          cart.calculateTotal();
+          await cart.save();
+        }
+      }
+    }
     res.json({ success: true, book });
   } catch (error) {
     res.status(500).json({ message: 'Server error updating book status' });

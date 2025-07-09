@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const cartItemSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['book', 'package'],
+    enum: ['book', 'package', 'event'],
     required: true
   },
   book: {
@@ -13,6 +13,14 @@ const cartItemSchema = new mongoose.Schema({
   package: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Package'
+  },
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
+  },
+  bookId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Book'
   },
   packageCustomizations: {
     printedCopies: { type: Number, default: 0 },

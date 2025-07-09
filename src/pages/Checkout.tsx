@@ -45,6 +45,17 @@ const Checkout = () => {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Process event registrations
+      for (const item of items) {
+        if (item.type === 'event') {
+          try {
+            await axios.post(`/api/events/${item.event._id}/register`);
+          } catch (error) {
+            console.error('Failed to register for event:', error);
+          }
+        }
+      }
+      
       // Clear cart and show success
       await clearCart();
       setStep(3);
@@ -397,7 +408,9 @@ const Checkout = () => {
                   {items.map((item) => (
                     <div key={item._id} className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">
-                        {item.type === 'book' ? item.book?.title : item.package?.name} x{item.quantity}
+                        {item.type === 'book' ? item.book?.title : 
+                         item.type === 'event' ? `${item.event?.title} (Event)` : 
+                         item.package?.name} x{item.quantity}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
                         ${(item.price * item.quantity).toFixed(2)}
