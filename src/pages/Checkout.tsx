@@ -42,25 +42,13 @@ const Checkout = () => {
     try {
       setProcessing(true);
       
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create order (this will handle event registrations and clear cart)
+      await axios.post('/api/orders/create', data);
       
-      // Process event registrations
-      for (const item of items) {
-        if (item.type === 'event') {
-          try {
-            await axios.post(`/api/events/${item.event._id}/register`);
-          } catch (error) {
-            console.error('Failed to register for event:', error);
-          }
-        }
-      }
-      
-      // Clear cart and show success
-      await clearCart();
       setStep(3);
       toast.success('Order placed successfully!');
     } catch (error) {
+      console.error('Order creation failed:', error);
       toast.error('Payment failed. Please try again.');
     } finally {
       setProcessing(false);

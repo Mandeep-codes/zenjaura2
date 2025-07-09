@@ -7,13 +7,15 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface Notification {
   _id: string;
-  type: 'book_approval' | 'book_rejection' | 'package_confirmation' | 'event_reminder' | 'admin_message' | 'system_update' | 'order_confirmation';
+  type: 'book_approval' | 'book_rejection' | 'package_confirmation' | 'event_reminder' | 'admin_message' | 'system_update' | 'order_confirmation' | 'payment_required';
   title: string;
   message: string;
   isRead: boolean;
   priority: 'low' | 'medium' | 'high';
   createdAt: string;
   relatedId?: string;
+  actionRequired?: boolean;
+  actionUrl?: string;
 }
 
 const NotificationBell = () => {
@@ -187,6 +189,14 @@ const NotificationBell = () => {
                                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                                     {notification.message}
                                   </p>
+                                  {notification.actionUrl && (
+                                    <a
+                                      href={notification.actionUrl}
+                                      className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
+                                    >
+                                      Take Action →
+                                    </a>
+                                  )}
                                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                     {formatDistanceToNow(new Date(notification.createdAt), { 
                                       addSuffix: true 
@@ -194,6 +204,9 @@ const NotificationBell = () => {
                                   </p>
                                 </div>
                                 <div className="flex items-center space-x-1 ml-2">
+                                  {notification.actionRequired && (
+                                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                  )}
                                   {!notification.isRead && (
                                     <button
                                       onClick={() => markAsRead(notification._id)}

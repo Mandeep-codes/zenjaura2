@@ -18,6 +18,7 @@ import eventRoutes from './routes/events.js';
 import notificationRoutes from './routes/notifications.js';
 import adminRoutes from './routes/admin.js';
 import uploadRoutes from './routes/upload.js';
+import orderRoutes from './routes/orders.js';
 
 // Middleware
 import { errorHandler } from './middleware/errorHandler.js';
@@ -61,6 +62,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -87,6 +87,17 @@ router.post('/:id/register', protect, async (req, res) => {
     event.registeredUsers.push({ user: req.user.id });
     await event.save();
 
+    // Create notification for successful registration
+    const Notification = (await import('../models/Notification.js')).default;
+    await Notification.create({
+      user: req.user.id,
+      type: 'event_reminder',
+      title: 'Event Registration Confirmed',
+      message: `You have successfully registered for "${event.title}" on ${new Date(event.startDate).toLocaleDateString()}.`,
+      relatedId: event._id,
+      relatedModel: 'Event',
+      priority: 'medium'
+    });
     res.json({ success: true, message: 'Successfully registered for event' });
   } catch (error) {
     res.status(500).json({ message: 'Server error registering for event' });
@@ -149,3 +160,31 @@ router.delete('/:id', protect, admin, async (req, res) => {
 });
 
 export default router;
+
+// Get user's event registrations
+router.get('/user/registrations', protect, async (req, res) => {
+  try {
+    const events = await Event.find({
+      'registeredUsers.user': req.user.id
+    }).select('title startDate location price registeredUsers');
+
+    const userRegistrations = events.map(event => {
+      const registration = event.registeredUsers.find(
+        reg => reg.user.toString() === req.user.id
+      );
+      
+      return {
+        _id: event._id,
+        title: event.title,
+        startDate: event.startDate,
+        location: event.location,
+        price: event.price,
+        registeredAt: registration?.registeredAt || event.createdAt
+      };
+    });
+
+    res.json(userRegistrations);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error fetching event registrations' });
+  }
+});

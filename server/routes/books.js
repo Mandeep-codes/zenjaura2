@@ -226,6 +226,7 @@ router.put('/admin/:id/status', protect, admin, async (req, res) => {
     // If book is approved, add publishing package to user's cart automatically
     if (status === 'approved') {
       const Cart = (await import('../models/Cart.js')).default;
+      const Notification = (await import('../models/Notification.js')).default;
       let cart = await Cart.findOne({ user: book.author._id });
       
       if (!cart) {
@@ -235,7 +236,8 @@ router.put('/admin/:id/status', protect, admin, async (req, res) => {
       // Check if package already in cart for this book
       const existingItem = cart.items.find(item => 
         item.type === 'package' && 
-        item.package?.toString() === book.publishingPackage.toString()
+        item.package?.toString() === book.publishingPackage.toString() &&
+        item.bookId?.toString() === book._id.toString()
       );
 
       if (!existingItem) {
@@ -253,8 +255,47 @@ router.put('/admin/:id/status', protect, admin, async (req, res) => {
           
           cart.calculateTotal();
           await cart.save();
+
+          // Create notification for payment required
+          await Notification.create({
+            user: book.author._id,
+            type: 'payment_required',
+            title: 'Book Approved - Payment Required',
+            message: `Your book "${book.title}" has been approved! Please complete payment for your publishing package to proceed with publication.`,
+            relatedId: book._id,
+            relatedModel: 'Book',
+            priority: 'high',
+            actionRequired: true,
+            actionUrl: '/cart'
+          });
         }
       }
+    } else if (status === 'rejected') {
+      const Notification = (await import('../models/Notification.js')).default;
+      
+      // Create notification for rejection
+      await Notification.create({
+        user: book.author._id,
+        type: 'book_rejection',
+        title: 'Book Submission Update',
+        message: `Your book "${book.title}" requires revisions. ${adminFeedback || 'Please check the feedback and resubmit.'}`,
+        relatedId: book._id,
+        relatedModel: 'Book',
+        priority: 'medium'
+      });
+    } else if (status === 'published') {
+      const Notification = (await import('../models/Notification.js')).default;
+      
+      // Create notification for publication
+      await Notification.create({
+        user: book.author._id,
+        type: 'book_approval',
+        title: 'Book Published Successfully!',
+        message: `Congratulations! Your book "${book.title}" is now live and available for purchase.`,
+        relatedId: book._id,
+        relatedModel: 'Book',
+        priority: 'high'
+      });
     }
     res.json({ success: true, book });
   } catch (error) {

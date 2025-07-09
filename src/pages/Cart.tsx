@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, Calendar } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, Calendar, MapPin } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
 const Cart = () => {
@@ -112,22 +112,36 @@ const Cart = () => {
 
                     {item.type === 'event' && item.event && (
                       <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        <p>{new Date(item.event.startDate).toLocaleDateString()}</p>
-                        <p>{item.event.location}</p>
+                        <p className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {new Date(item.event.startDate).toLocaleDateString()} at {new Date(item.event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        <p className="flex items-center mt-1">
+                          <MapPin className="w-4 h-4 mr-1" />
+                          {item.event.location}
+                        </p>
                       </div>
                     )}
                     {item.type === 'package' && item.packageCustomizations && (
                       <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         <p>Printed Copies: {item.packageCustomizations.printedCopies}</p>
                         <p>Total Pages: {item.packageCustomizations.totalPages}</p>
+                        {item.bookId && (
+                          <p className="text-emerald-600 dark:text-emerald-400 font-medium">
+                            Publishing package for approved book
+                          </p>
+                        )}
                       </div>
                     )}
 
                     <div className="flex items-center justify-between mt-4">
                       {/* Quantity Controls */}
                       {item.type === 'event' ? (
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                          Event Registration
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            Event Registration
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-3">

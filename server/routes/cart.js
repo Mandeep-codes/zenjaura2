@@ -85,6 +85,15 @@ router.post('/add', protect, async (req, res) => {
         return res.status(400).json({ message: 'Already registered for this event' });
       }
       
+      // Check if already in cart
+      const alreadyInCart = cart.items.some(item => 
+        item.type === 'event' && item.event?.toString() === eventId
+      );
+      
+      if (alreadyInCart) {
+        return res.status(400).json({ message: 'Event already in cart' });
+      }
+      
       price = eventDoc.price;
     }
 
@@ -93,24 +102,26 @@ router.post('/add', protect, async (req, res) => {
       if (type === 'book') {
         return item.type === 'book' && item.book?.toString() === book;
       } else if (type === 'package') {
-        return item.type === 'package' && item.package?.toString() === packageId;
+        return item.type === 'package' && item.package?.toString() === packageId && 
+               (!item.bookId || item.bookId?.toString() === req.body.bookId);
       } else if (type === 'event') {
         return item.type === 'event' && item.event?.toString() === eventId;
       }
       return false;
     });
 
-    if (existingItemIndex > -1) {
+    if (existingItemIndex > -1 && type !== 'event') {
       cart.items[existingItemIndex].quantity += quantity;
     } else {
       const newItem = {
         type,
-        quantity,
+        quantity: type === 'event' ? 1 : quantity, // Events always quantity 1
         price,
         ...(type === 'book' ? { book } : 
            type === 'package' ? { package: packageId } : 
            { event: eventId }),
-        ...(packageCustomizations && { packageCustomizations })
+        ...(packageCustomizations && { packageCustomizations }),
+        ...(req.body.bookId && { bookId: req.body.bookId })
       };
       cart.items.push(newItem);
     }

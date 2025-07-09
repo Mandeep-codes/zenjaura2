@@ -83,6 +83,11 @@ const Events = () => {
   };
 
   const handleAddToCart = async (event: Event) => {
+    if (!user) {
+      toast.error('Please login to register for events');
+      return;
+    }
+
     if (event.price === 0) {
       // Free event - register directly
       try {
@@ -101,6 +106,7 @@ const Events = () => {
           quantity: 1,
           price: event.price
         });
+        toast.success('Event added to cart!');
       } catch (error) {
         // Error handled in context
       }

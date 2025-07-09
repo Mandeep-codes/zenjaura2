@@ -8,7 +8,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['book_approval', 'book_rejection', 'package_confirmation', 'event_reminder', 'admin_message', 'system_update', 'order_confirmation'],
+    enum: ['book_approval', 'book_rejection', 'package_confirmation', 'event_reminder', 'admin_message', 'system_update', 'order_confirmation', 'payment_required'],
     required: true
   },
   title: {
@@ -38,6 +38,13 @@ const notificationSchema = new mongoose.Schema({
   },
   expiresAt: {
     type: Date
+  },
+  actionRequired: {
+    type: Boolean,
+    default: false
+  },
+  actionUrl: {
+    type: String
   }
 }, {
   timestamps: true

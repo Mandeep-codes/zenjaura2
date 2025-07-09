@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, BookOpen, Calendar, Package, Edit, Eye, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { User, BookOpen, Calendar, Package, Edit, Eye, Clock, CheckCircle, XCircle, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../contexts/axiosInstance.js';
 import toast from 'react-hot-toast';
@@ -290,6 +291,7 @@ const Profile = () => {
                               </h3>
                               <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
                                 <span>Genre: {book.genre}</span>
+                                <span className="ml-4">Price: ${book.price}</span>
                                 <span>Package: {book.publishingPackage.name}</span>
                                 <span>Submitted: {new Date(book.createdAt).toLocaleDateString()}</span>
                               </div>
@@ -323,15 +325,64 @@ const Profile = () => {
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Registered Events
                   </h2>
-                  <div className="text-center py-8">
-                    <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      No events registered
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Browse our events page to find interesting workshops and book launches.
-                    </p>
-                  </div>
+
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                    </div>
+                  ) : eventRegistrations.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        No events registered
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        Browse our events page to find interesting workshops and book launches.
+                      </p>
+                      <Link
+                        to="/events"
+                        className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                      >
+                        Browse Events
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {eventRegistrations.map((event) => (
+                        <div
+                          key={event._id}
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-6"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                {event.title}
+                              </h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
+                                <span className="flex items-center">
+                                  <Calendar className="w-4 h-4 mr-1" />
+                                  {new Date(event.startDate).toLocaleDateString()}
+                                </span>
+                                <span className="flex items-center">
+                                  <MapPin className="w-4 h-4 mr-1" />
+                                  {event.location}
+                                </span>
+                                <span>Price: {event.price === 0 ? 'Free' : `$${event.price}`}</span>
+                              </div>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Registered: {new Date(event.registeredAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
+                                Registered
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
 
@@ -343,15 +394,70 @@ const Profile = () => {
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     Order History
                   </h2>
-                  <div className="text-center py-8">
-                    <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      No orders yet
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Your purchase history will appear here once you make your first order.
-                    </p>
-                  </div>
+
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                    </div>
+                  ) : orders.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        No orders yet
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        Your purchase history will appear here once you make your first order.
+                      </p>
+                      <Link
+                        to="/books"
+                        className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                      >
+                        Browse Books
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.map((order) => (
+                        <div
+                          key={order._id}
+                          className="border border-gray-200 dark:border-gray-700 rounded-lg p-6"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                Order #{order.orderNumber}
+                              </h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
+                                <span>Total: ${order.totalAmount}</span>
+                                <span>Date: {new Date(order.createdAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Items:</h4>
+                            <div className="space-y-2">
+                              {order.items.map((item, index) => (
+                                <div key={index} className="flex justify-between text-sm">
+                                  <span className="text-gray-600 dark:text-gray-300">
+                                    {item.title} ({item.type}) x{item.quantity}
+                                  </span>
+                                  <span className="font-medium text-gray-900 dark:text-white">
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </div>
