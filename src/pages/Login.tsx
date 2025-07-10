@@ -207,9 +207,6 @@ const Login = () => {
             <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
               <p><strong>Admin:</strong> admin@zenjaura.com / admin123456</p>
               <p><strong>User:</strong> user@example.com / user123456</p>
-             <p className="text-yellow-600 dark:text-yellow-400 mt-2">
-               <strong>Note:</strong> Use these accounts to test the platform
-             </p>
             </div>
           </GlassCard>
         </motion.div>

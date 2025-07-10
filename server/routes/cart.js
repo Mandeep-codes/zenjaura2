@@ -103,7 +103,6 @@ router.post('/add', protect, async (req, res) => {
         return item.type === 'book' && item.book?.toString() === book;
       } else if (type === 'package') {
         return item.type === 'package' && item.package?.toString() === packageId && 
-               JSON.stringify(item.packageCustomizations) === JSON.stringify(packageCustomizations) &&
                (!item.bookId || item.bookId?.toString() === req.body.bookId);
       } else if (type === 'event') {
         return item.type === 'event' && item.event?.toString() === eventId;

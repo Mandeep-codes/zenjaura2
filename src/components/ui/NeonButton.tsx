@@ -1,8 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-// Define LucideIcon type locally to avoid import issues
-type LucideIcon = React.ComponentType<{ className?: string }>;
+import { LucideIcon } from 'lucide-react';
 
 interface NeonButtonProps {
   children: React.ReactNode;

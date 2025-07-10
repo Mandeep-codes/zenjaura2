@@ -60,10 +60,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Check if user account is active (you can add this field to User model if needed)
-    // if (!user.isActive) {
-    //   return res.status(401).json({ message: 'Account is deactivated' });
-    // }
     user.lastLogin = new Date();
     await user.save();
 

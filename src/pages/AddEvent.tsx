@@ -84,12 +84,7 @@ const AddEvent = () => {
 
           <div>
             <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Location</label>
-            <input 
-              {...register('location', { required: 'Location is required' })} 
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-              placeholder={isVirtual ? "Online via Zoom" : "Physical address"}
-            />
-            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>}
+            <input {...register('location', { required: true })} className="input" />
           </div>
 
           <div className="flex items-center space-x-4">
@@ -100,9 +95,8 @@ const AddEvent = () => {
             {isVirtual && (
               <input
                 placeholder="Virtual Link"
-                type="url"
                 {...register('virtualLink')}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="input flex-1"
               />
             )}
           </div>
@@ -110,24 +104,11 @@ const AddEvent = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Max Attendees</label>
-              <input 
-                type="number" 
-                min="0"
-                {...register('maxAttendees', { valueAsNumber: true })} 
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-                placeholder="0 for unlimited"
-              />
+              <input type="number" {...register('maxAttendees')} className="input" />
             </div>
             <div>
               <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Price (₹)</label>
-              <input 
-                type="number" 
-                step="0.01"
-                min="0"
-                {...register('price', { valueAsNumber: true })} 
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-                placeholder="0 for free"
-              />
+              <input type="number" {...register('price')} className="input" />
             </div>
           </div>
 
@@ -145,21 +126,12 @@ const AddEvent = () => {
 
           <div>
             <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Image URL</label>
-            <input 
-              type="url"
-              {...register('image')} 
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-              placeholder="https://example.com/image.jpg"
-            />
+            <input {...register('image')} className="input" />
           </div>
 
           <div>
             <label className="block font-medium mb-1 text-gray-700 dark:text-gray-200">Tags (comma separated)</label>
-            <input 
-              {...register('tags')} 
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-              placeholder="workshop, writing, networking"
-            />
+            <input {...register('tags')} className="input" />
           </div>
 
           <button

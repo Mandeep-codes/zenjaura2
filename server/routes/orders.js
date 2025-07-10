@@ -10,6 +10,9 @@ const router = express.Router();
 router.get('/user', protect, async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
+      .populate('items.book', 'title')
+      .populate('items.package', 'name')
+      .populate('items.event', 'title')
       .sort({ createdAt: -1 });
 
     // Format orders for frontend
@@ -21,7 +24,9 @@ router.get('/user', protect, async (req, res) => {
       createdAt: order.createdAt,
       items: order.items.map(item => ({
         type: item.type,
-        title: item.title || 'Unknown Item',
+        title: item.type === 'book' ? item.book?.title : 
+               item.type === 'event' ? item.event?.title : 
+               item.package?.name || 'Unknown',
         price: item.price,
         quantity: item.quantity
       }))
