@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, BookOpen, Calendar, Package, Edit, Eye, Clock, CheckCircle, XCircle, MapPin } from 'lucide-react';
+import { User, BookOpen, Calendar, Package, Edit, Clock, CheckCircle, XCircle, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../contexts/axiosInstance.js';
 import toast from 'react-hot-toast';
@@ -47,6 +47,7 @@ const Profile = () => {
   const [eventRegistrations, setEventRegistrations] = useState<EventRegistration[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [tabLoading, setTabLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -65,50 +66,53 @@ const Profile = () => {
 
   const fetchBookSubmissions = async () => {
     try {
-      setLoading(true);
+      setTabLoading(true);
       const response = await axios.get('/api/books/user/submissions');
       setBookSubmissions(response.data);
     } catch (error) {
       console.error('Failed to fetch submissions:', error);
       toast.error('Failed to load submissions');
     } finally {
-      setLoading(false);
+      setTabLoading(false);
     }
   };
 
   const fetchEventRegistrations = async () => {
     try {
-      setLoading(true);
+      setTabLoading(true);
       const response = await axios.get('/api/events/user/registrations');
       setEventRegistrations(response.data);
     } catch (error) {
       console.error('Failed to fetch event registrations:', error);
       toast.error('Failed to load event registrations');
     } finally {
-      setLoading(false);
+      setTabLoading(false);
     }
   };
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
+      setTabLoading(true);
       const response = await axios.get('/api/orders/user');
       setOrders(response.data);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       toast.error('Failed to load orders');
     } finally {
-      setLoading(false);
+      setTabLoading(false);
     }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await updateProfile(formData);
       setEditing(false);
     } catch (error) {
       // Error handled in context
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -259,9 +263,10 @@ const Profile = () => {
                       <div className="flex space-x-4">
                         <button
                           type="submit"
+                          disabled={loading}
                           className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                         >
-                          Save Changes
+                          {loading ? 'Saving...' : 'Save Changes'}
                         </button>
                         <button
                           type="button"
@@ -319,7 +324,7 @@ const Profile = () => {
                     Book Submissions
                   </h2>
 
-                  {loading ? (
+                  {tabLoading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
                     </div>
@@ -382,7 +387,7 @@ const Profile = () => {
                     Registered Events
                   </h2>
 
-                  {loading ? (
+                  {tabLoading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
                     </div>
@@ -451,7 +456,7 @@ const Profile = () => {
                     Order History
                   </h2>
 
-                  {loading ? (
+                  {tabLoading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
                     </div>

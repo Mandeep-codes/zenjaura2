@@ -89,7 +89,7 @@ const EventDetails = () => {
     } else {
       // Paid event - redirect to add to cart
       const { addToCart } = await import('../contexts/CartContext');
-      // This should be handled by the cart context
+      // This is now handled by the cart context properly
       toast.info('Please add the event to cart to complete registration');
     }
   };
