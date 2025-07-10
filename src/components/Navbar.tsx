@@ -58,6 +58,7 @@ const Navbar = () => {
   useEffect(() => {
     setUserMenuOpen(false);
     setThemeMenuOpen(false);
+    setIsOpen(false); // Close mobile menu on route change
   }, [location]);
 
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);

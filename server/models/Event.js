@@ -96,4 +96,9 @@ eventSchema.virtual('availableSpots').get(function() {
   return this.maxAttendees - this.registeredUsers.length;
 });
 
+// Add method to check if user is registered
+eventSchema.methods.isUserRegistered = function(userId) {
+  return this.registeredUsers.some(reg => reg.user.toString() === userId.toString());
+};
+
 export default mongoose.model('Event', eventSchema);
