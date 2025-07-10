@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { DivideIcon as LucideIcon, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+
+type LucideIcon = React.ComponentType<{ className?: string }>;
 
 interface ModernInputProps {
   label?: string;

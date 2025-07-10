@@ -10,16 +10,42 @@ interface BookSubmission {
   _id: string;
   title: string;
   genre: string;
+  price: number;
   status: 'pending' | 'approved' | 'rejected' | 'published';
   adminFeedback: string;
   createdAt: string;
   publishingPackage: { name: string };
 }
 
+interface EventRegistration {
+  _id: string;
+  title: string;
+  startDate: string;
+  location: string;
+  price: number;
+  registeredAt: string;
+}
+
+interface Order {
+  _id: string;
+  orderNumber: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  items: Array<{
+    title: string;
+    type: string;
+    price: number;
+    quantity: number;
+  }>;
+}
+
 const Profile = () => {
   const { user, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [bookSubmissions, setBookSubmissions] = useState<BookSubmission[]>([]);
+  const [eventRegistrations, setEventRegistrations] = useState<EventRegistration[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,10 +54,14 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    if (activeTab === 'submissions') {
+    if (activeTab === 'submissions' && bookSubmissions.length === 0) {
       fetchBookSubmissions();
+    } else if (activeTab === 'events' && eventRegistrations.length === 0) {
+      fetchEventRegistrations();
+    } else if (activeTab === 'orders' && orders.length === 0) {
+      fetchOrders();
     }
-  }, [activeTab]);
+  }, [activeTab, bookSubmissions.length, eventRegistrations.length, orders.length]);
 
   const fetchBookSubmissions = async () => {
     try {
@@ -41,6 +71,32 @@ const Profile = () => {
     } catch (error) {
       console.error('Failed to fetch submissions:', error);
       toast.error('Failed to load submissions');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEventRegistrations = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/events/user/registrations');
+      setEventRegistrations(response.data);
+    } catch (error) {
+      console.error('Failed to fetch event registrations:', error);
+      toast.error('Failed to load event registrations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/orders/user');
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+      toast.error('Failed to load orders');
     } finally {
       setLoading(false);
     }

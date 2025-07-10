@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { DivideIcon as LucideIcon } from 'lucide-react';
+
+type LucideIcon = React.ComponentType<{ className?: string }>;
 
 interface NeonButtonProps {
   children: React.ReactNode;

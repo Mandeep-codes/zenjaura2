@@ -106,7 +106,6 @@ const Events = () => {
           quantity: 1,
           price: event.price
         });
-        toast.success('Event added to cart!');
       } catch (error) {
         // Error handled in context
       }

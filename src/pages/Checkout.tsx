@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from '../contexts/axiosInstance.js';
 import toast from 'react-hot-toast';
 
 interface CheckoutForm {

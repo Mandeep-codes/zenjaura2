@@ -47,14 +47,22 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const [statsRes, booksRes] = await Promise.all([
-          axios.get('/api/books/stats'),
-          axios.get('/api/books?featured=true&limit=6')
+          axios.get('http://localhost:5000/api/books/stats'),
+          axios.get('http://localhost:5000/api/books?featured=true&limit=6')
         ]);
         
         setStats(statsRes.data);
         setFeaturedBooks(booksRes.data.books);
       } catch (error) {
         console.error('Failed to fetch homepage data:', error);
+        // Set default values if API fails
+        setStats({
+          totalBooks: 0,
+          totalAuthors: 0,
+          averageRating: 0,
+          totalSales: 0
+        });
+        setFeaturedBooks([]);
       } finally {
         setLoading(false);
       }

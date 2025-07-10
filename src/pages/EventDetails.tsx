@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, Clock, Video, ArrowLeft, User } from 'lucide-react';
 import axios from '../contexts/axiosInstance.js';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -35,6 +36,7 @@ const EventDetails = () => {
   const [registering, setRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const { user, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -99,9 +101,12 @@ const EventDetails = () => {
     }
 
     try {
-      const { useCart } = await import('../contexts/CartContext');
-      // This needs to be handled properly with context
-      toast.success('Event added to cart!');
+      await addToCart({
+        type: 'event',
+        event: event?._id,
+        quantity: 1,
+        price: event?.price || 0
+      });
     } catch (error: any) {
       toast.error('Failed to add event to cart');
     }
