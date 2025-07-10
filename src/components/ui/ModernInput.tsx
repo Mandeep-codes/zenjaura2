@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, LucideIcon } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+
+// Define LucideIcon type locally to avoid import issues
+type LucideIcon = React.ComponentType<{ className?: string }>;
 
 interface ModernInputProps {
   label?: string;

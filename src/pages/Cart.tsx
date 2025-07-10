@@ -102,6 +102,11 @@ const Cart = () => {
                       {item.type === 'book' ? item.book?.title : 
                        item.type === 'event' ? item.event?.title : 
                        item.package?.name}
+                    {item.type === 'package' && item.bookId && (
+                      <span className="text-xs text-emerald-600 dark:text-emerald-400 block">
+                        (For approved book)
+                      </span>
+                    )}
                     </h3>
                     
                     {item.type === 'book' && item.book && (

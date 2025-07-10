@@ -54,6 +54,15 @@ const Profile = () => {
     bio: user?.bio || ''
   });
 
+  // Update form data when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        bio: user.bio || ''
+      });
+    }
+  }, [user]);
   useEffect(() => {
     if (activeTab === 'submissions' && bookSubmissions.length === 0) {
       fetchBookSubmissions();

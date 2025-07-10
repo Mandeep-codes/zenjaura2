@@ -46,9 +46,10 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const [statsRes, booksRes] = await Promise.all([
-          axios.get('/api/books/stats'),
-          axios.get('/api/books?featured=true&limit=6')
+          axios.get(`${baseURL}/books/stats`),
+          axios.get(`${baseURL}/books?featured=true&limit=6`)
         ]);
         
         setStats(statsRes.data);

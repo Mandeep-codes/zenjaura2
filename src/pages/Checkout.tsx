@@ -48,6 +48,11 @@ const Checkout = () => {
       
       setStep(3);
       toast.success('Order placed successfully!');
+      
+      // Small delay to show success message before clearing
+      setTimeout(() => {
+        // The cart is already cleared by the server
+      }, 1000);
     } catch (error) {
       console.error('Order creation failed:', error);
       toast.error('Payment failed. Please try again.');

@@ -242,6 +242,7 @@ router.put('/admin/:id/status', protect, admin, async (req, res) => {
 
       if (!existingItem) {
         const Package = (await import('../models/Package.js')).default;
+        const Package = (await import('../models/Package.js')).default;
         const packageDoc = await Package.findById(book.publishingPackage);
         
         if (packageDoc) {

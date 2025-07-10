@@ -109,7 +109,6 @@ const Events = () => {
       } catch (error) {
         // Error handled in context
       }
-    }
   };
 
   return (

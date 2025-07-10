@@ -76,7 +76,6 @@ const Books = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchBooks();
   };
 
   return (
