@@ -133,10 +133,10 @@ const Events = () => {
         {user?.role === 'admin' && (
           <div className="mb-6 text-right">
             <Link
-              to="/admin/add-event"
+              to="/admin/events"
               className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-lg transition"
             >
-              + Add New Event
+              Manage Events
             </Link>
           </div>
         )}

@@ -114,7 +114,7 @@ const Cart = () => {
                       <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         <p className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(item.event.startDate).toLocaleDateString()} at {new Date(item.event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(item.event.startDate).toLocaleDateString()}
                         </p>
                         <p className="flex items-center mt-1">
                           <MapPin className="w-4 h-4 mr-1" />

@@ -166,7 +166,7 @@ router.get('/user/registrations', protect, async (req, res) => {
   try {
     const events = await Event.find({
       'registeredUsers.user': req.user.id
-    }).select('title startDate location price registeredUsers');
+    }).select('title startDate location price registeredUsers createdAt');
 
     const userRegistrations = events.map(event => {
       const registration = event.registeredUsers.find(

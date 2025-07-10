@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from '../contexts/axiosInstance';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +20,7 @@ interface FormValues {
 }
 
 const AddEvent = () => {
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -32,6 +33,7 @@ const AddEvent = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      setLoading(true);
       const eventData = {
         ...data,
         tags: data.tags.split(',').map((tag) => tag.trim())
@@ -41,10 +43,12 @@ const AddEvent = () => {
 
       toast.success('Event created successfully!');
       reset();
-      navigate('/events');
+      navigate('/admin/events');
     } catch (error: any) {
       console.error('❌ Error:', error.response?.data || error.message);
       toast.error(error.response?.data?.message || 'Failed to create event');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,9 +136,10 @@ const AddEvent = () => {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg transition"
           >
-            Submit
+            {loading ? 'Creating...' : 'Create Event'}
           </button>
         </form>
       </div>

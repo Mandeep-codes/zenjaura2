@@ -100,7 +100,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           totalAmount: response.data.totalAmount
         }
       });
-      toast.success('Item added to cart');
+      if (item.type === 'event') {
+        toast.success('Event added to cart');
+      } else if (item.type === 'book') {
+        toast.success('Book added to cart');
+      } else {
+        toast.success('Package added to cart');
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to add item to cart');
     }

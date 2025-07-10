@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Bell, Check, X, BookOpen, Package, Calendar, AlertCircle, Info } from 'lucide-react';
 import axios from '../contexts/axiosInstance.js';
 import { formatDistanceToNow } from 'date-fns';
@@ -190,12 +191,13 @@ const NotificationBell = () => {
                                     {notification.message}
                                   </p>
                                   {notification.actionUrl && (
-                                    <a
-                                      href={notification.actionUrl}
+                                    <Link
+                                      to={notification.actionUrl}
                                       className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium"
+                                      onClick={() => setIsOpen(false)}
                                     >
                                       Take Action →
-                                    </a>
+                                    </Link>
                                   )}
                                   <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                                     {formatDistanceToNow(new Date(notification.createdAt), { 

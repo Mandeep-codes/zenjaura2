@@ -489,7 +489,13 @@ const Profile = () => {
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                order.status === 'completed' 
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200'
+                                  : order.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200'
+                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200'
+                              }`}>
                                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                               </span>
                             </div>
