@@ -159,8 +159,6 @@ router.delete('/:id', protect, admin, async (req, res) => {
   }
 });
 
-export default router;
-
 // Get user's event registrations
 router.get('/user/registrations', protect, async (req, res) => {
   try {
@@ -188,3 +186,5 @@ router.get('/user/registrations', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error fetching event registrations' });
   }
 });
+
+export default router;
