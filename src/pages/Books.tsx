@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Filter, Star, ShoppingCart, BookOpen } from 'lucide-react';
+import { Filter, Star, ShoppingCart, BookOpen } from 'lucide-react';
 import axios from '../contexts/axiosInstance.js';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useDebounce } from '../hooks/useDebounce';
+import SearchInput from '../components/ui/SearchInput';
+import LazyImage from '../components/ui/LazyImage';
+import Skeleton from '../components/ui/Skeleton';
+import Pagination from '../components/ui/Pagination';
 import toast from 'react-hot-toast';
 
 interface Book {
@@ -29,6 +34,11 @@ const Books = () => {
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const [filters, setFilters] = useState({
+    minPrice: '',
+    maxPrice: '',
+    sortBy: 'newest'
+  });
 
   const genres = [
     'All', 'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 
@@ -69,6 +79,20 @@ const Books = () => {
       return;
     }
     
+    // Add price filtering
+    if (filters.minPrice) {
+      query.price = { ...query.price, $gte: parseFloat(filters.minPrice) };
+    }
+    if (filters.maxPrice) {
+      query.price = { ...query.price, $lte: parseFloat(filters.maxPrice) };
+    }
+
+    // Add sorting
+    let sortOptions = { createdAt: -1 };
+    if (filters.sortBy === 'price-low') sortOptions = { price: 1 };
+    if (filters.sortBy === 'price-high') sortOptions = { price: -1 };
+    if (filters.sortBy === 'rating') sortOptions = { 'rating.average': -1 };
+
     try {
       await addToCart({
         type: 'book',
@@ -81,8 +105,8 @@ const Books = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
     setCurrentPage(1);
   };
 
@@ -127,36 +151,92 @@ const Books = () => {
 
         {/* Search and Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <form onSubmit={handleSearch} className="flex-1">
+          <div className="space-y-4">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <SearchInput
+                onSearch={handleSearch}
+                placeholder="Search books by title or description..."
+                className="flex-1"
+              />
+
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <select
+                  value={selectedGenre}
+                  onChange={(e) => {
+                    setSelectedGenre(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-10 pr-8 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none min-w-[150px]"
+                >
+                  {genres.map((genre) => (
+                    <option key={genre} value={genre === 'All' ? '' : genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Advanced Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Min Price
+                </label>
                 <input
-                  type="text"
-                  placeholder="Search books by title or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={filters.minPrice}
+                  onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="$0"
                 />
               </div>
-            </form>
-
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={selectedGenre}
-                onChange={(e) => {
-                  setSelectedGenre(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="pl-10 pr-8 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none min-w-[150px]"
-              >
-                {genres.map((genre) => (
-                  <option key={genre} value={genre === 'All' ? '' : genre}>
-                    {genre}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Max Price
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={filters.maxPrice}
+                  onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="$999"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Sort By
+                </label>
+                <select
+                  value={filters.sortBy}
+                  onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setFilters({ minPrice: '', maxPrice: '', sortBy: 'newest' });
+                    setSelectedGenre('');
+                    setSearchTerm('');
+                    setCurrentPage(1);
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -165,12 +245,11 @@ const Books = () => {
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
-                <div className="w-full h-64 bg-gray-200 dark:bg-gray-700"></div>
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <Skeleton variant="rectangular" height="256px" />
                 <div className="p-6">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <Skeleton lines={2} className="mb-4" />
+                  <Skeleton height="32px" />
                 </div>
               </div>
             ))}
@@ -196,13 +275,9 @@ const Books = () => {
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative overflow-hidden">
-                  <img
+                  <LazyImage
                     src={book.coverImage}
                     alt={book.title}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg';
-                    }}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 right-4 bg-emerald-600 text-white px-2 py-1 rounded-full text-sm">
@@ -253,26 +328,13 @@ const Books = () => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-12">
-            <div className="flex space-x-2">
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  disabled={loading}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    currentPage === i + 1
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="mt-12">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
     </div>
   );
