@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, Star, ShoppingCart, BookOpen } from 'lucide-react';
 import axios from '../contexts/axiosInstance.js';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext'; // ✅ NEW
+import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 interface Book {
@@ -26,8 +26,9 @@ const Books = () => {
   const [selectedGenre, setSelectedGenre] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
-  const { user } = useAuth(); // ✅ NEW
+  const { user } = useAuth();
 
   const genres = [
     'All', 'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 
@@ -37,6 +38,7 @@ const Books = () => {
   const fetchBooks = async () => {
     try {
       setLoading(true);
+      setError(null);
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '12'
@@ -46,11 +48,12 @@ const Books = () => {
       if (selectedGenre && selectedGenre !== 'All') params.append('genre', selectedGenre);
 
       const response = await axios.get(`/api/books?${params}`);
-      setBooks(response.data.books);
-      setTotalPages(response.data.totalPages);
+      setBooks(response.data.books || []);
+      setTotalPages(response.data.totalPages || 1);
     } catch (error) {
       console.error('Failed to fetch books:', error);
-      toast.error('Failed to load books');
+      setError('Failed to load books. Please try again.');
+      setBooks([]);
     } finally {
       setLoading(false);
     }
@@ -61,6 +64,11 @@ const Books = () => {
   }, [currentPage, searchTerm, selectedGenre]);
 
   const handleAddToCart = async (book: Book) => {
+    if (!user) {
+      toast.error('Please login to add books to cart');
+      return;
+    }
+    
     try {
       await addToCart({
         type: 'book',
@@ -69,15 +77,36 @@ const Books = () => {
         price: book.price
       });
     } catch (error) {
-      // Error handled in context
+      console.error('Failed to add book to cart:', error);
     }
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchBooks();
   };
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {error}
+            </h3>
+            <button
+              onClick={() => fetchBooks()}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -132,8 +161,6 @@ const Books = () => {
           </div>
         </div>
 
-        {/* Add Book Button - Only for Admin */}
-
         {/* Books Grid */}
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -172,6 +199,10 @@ const Books = () => {
                   <img
                     src={book.coverImage}
                     alt={book.title}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg';
+                    }}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 right-4 bg-emerald-600 text-white px-2 py-1 rounded-full text-sm">
@@ -208,6 +239,8 @@ const Books = () => {
                     </Link>
                     <button
                       onClick={() => handleAddToCart(book)}
+                      disabled={!user}
+                      title={!user ? 'Please login to add to cart' : 'Add to cart'}
                       className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                     >
                       <ShoppingCart className="w-4 h-4" />
@@ -227,6 +260,7 @@ const Books = () => {
                 <button
                   key={i + 1}
                   onClick={() => setCurrentPage(i + 1)}
+                  disabled={loading}
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     currentPage === i + 1
                       ? 'bg-emerald-600 text-white'

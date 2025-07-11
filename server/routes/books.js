@@ -37,6 +37,11 @@ router.get('/', async (req, res) => {
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
     
+    // Validate pagination parameters
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({ message: 'Invalid pagination parameters' });
+    }
+    
     let query = { status: 'published', isActive: true };
     
     if (req.query.genre) {
@@ -44,9 +49,13 @@ router.get('/', async (req, res) => {
     }
     
     if (req.query.search) {
+      const searchTerm = req.query.search.toString().trim();
+      if (searchTerm.length > 100) {
+        return res.status(400).json({ message: 'Search term too long' });
+      }
       query.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { synopsis: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: searchTerm, $options: 'i' } },
+        { synopsis: { $regex: searchTerm, $options: 'i' } }
       ];
     }
     
@@ -70,6 +79,7 @@ router.get('/', async (req, res) => {
       total
     });
   } catch (error) {
+    console.error('Error fetching books:', error);
     res.status(500).json({ message: 'Server error fetching books' });
   }
 });

@@ -77,18 +77,30 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/zenjaura')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/zenjaura', {
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
   .then(() => {
     console.log('✅ Connected to MongoDB');
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
     });
   })
   .catch((error) => {
     console.error('❌ Database connection error:', error);
     process.exit(1);
   });
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('🛑 Shutting down gracefully...');
+  await mongoose.connection.close();
+  process.exit(0);
+});
 
 export default app;

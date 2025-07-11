@@ -104,13 +104,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = localStorage.getItem('token');
       if (token) {
         try {
+          // Set token in axios headers before making the request
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           const response = await axios.get('/api/auth/profile');
           dispatch({
             type: 'AUTH_SUCCESS',
             payload: { user: response.data.user, token }
           });
         } catch (error) {
+          console.error('Failed to load user:', error);
           localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
           dispatch({ type: 'AUTH_FAIL' });
         }
       } else {
@@ -127,13 +131,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await axios.post('/api/auth/login', { email, password });
 
       const { token, user } = response.data;
+      
+      if (!token || !user) {
+        throw new Error('Invalid response from server');
+      }
+      
       localStorage.setItem('token', token);
 
       dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
       toast.success(`Welcome back, ${user.name}!`);
     } catch (error: any) {
       dispatch({ type: 'AUTH_FAIL' });
-      toast.error(error.response?.data?.message || 'Login failed');
+      const message = error.response?.data?.message || error.message || 'Login failed';
+      toast.error(message);
       throw error;
     }
   };
@@ -144,19 +154,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await axios.post('/api/auth/register', { name, email, password });
 
       const { token, user } = response.data;
+      
+      if (!token || !user) {
+        throw new Error('Invalid response from server');
+      }
+      
       localStorage.setItem('token', token);
 
       dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
       toast.success(`Welcome to Zenjaura, ${user.name}!`);
     } catch (error: any) {
       dispatch({ type: 'AUTH_FAIL' });
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const message = error.response?.data?.message || error.message || 'Registration failed';
+      toast.error(message);
       throw error;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
     dispatch({ type: 'LOGOUT' });
     toast.success('Logged out successfully');
   };

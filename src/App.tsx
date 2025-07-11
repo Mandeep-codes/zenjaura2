@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // Pages
 import Home from "./pages/Home";
@@ -52,6 +53,7 @@ function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <Router>
       <ThemeProvider>
         <AuthProvider>
@@ -171,12 +173,11 @@ function App() {
               toastOptions={{
                 duration: 4000,
                 style: {
-                  background: "rgba(255, 255, 255, 0.1)",
-                  backdropFilter: "blur(20px)",
-                  color: "var(--toast-color)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                    background: "var(--toast-bg, #ffffff)",
+                    color: "var(--toast-color, #111827)",
+                    border: "1px solid var(--toast-border, #e5e7eb)",
                   borderRadius: "16px",
-                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
                 },
               }}
             />
@@ -184,6 +185,7 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </Router>
+    </ErrorBoundary>
   );
 }
 

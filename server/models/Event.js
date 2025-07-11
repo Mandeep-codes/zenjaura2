@@ -5,38 +5,61 @@ const eventSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    maxlength: [200, 'Title cannot exceed 200 characters']
   },
   slug: {
     type: String,
-    unique: true
+    unique: true,
+    sparse: true
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    maxlength: [2000, 'Description cannot exceed 2000 characters']
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return v > new Date();
+      },
+      message: 'Start date must be in the future'
+    }
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return v > this.startDate;
+      },
+      message: 'End date must be after start date'
+    }
   },
   location: {
     type: String,
-    required: true
+    required: true,
+    maxlength: [200, 'Location cannot exceed 200 characters']
   },
   isVirtual: {
     type: Boolean,
     default: false
   },
   virtualLink: {
-    type: String
+    type: String,
+    validate: {
+      validator: function(v) {
+        return !v || /^https?:\/\/.+/.test(v);
+      },
+      message: 'Virtual link must be a valid URL'
+    }
   },
   maxAttendees: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'Max attendees cannot be negative']
   },
   registeredUsers: [{
     user: {
@@ -54,7 +77,9 @@ const eventSchema = new mongoose.Schema({
   }],
   price: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'Price cannot be negative'],
+    max: [9999.99, 'Price cannot exceed $9999.99']
   },
   category: {
     type: String,
@@ -68,9 +93,18 @@ const eventSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: ''
+    default: '',
+    validate: {
+      validator: function(v) {
+        return !v || /^https?:\/\/.+/.test(v);
+      },
+      message: 'Image must be a valid URL'
+    }
   },
-  tags: [String],
+  tags: [{
+    type: String,
+    maxlength: [50, 'Tag cannot exceed 50 characters']
+  }],
   status: {
     type: String,
     enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
@@ -84,9 +118,19 @@ const eventSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Indexes for better query performance
+eventSchema.index({ startDate: 1 });
+eventSchema.index({ category: 1 });
+eventSchema.index({ status: 1 });
+eventSchema.index({ title: 'text', description: 'text' });
+
 eventSchema.pre('save', function(next) {
   if (this.isModified('title') || !this.slug) {
-    this.slug = slugify(this.title, { lower: true, strict: true });
+    this.slug = slugify(this.title, { 
+      lower: true, 
+      strict: true,
+      remove: /[*+~.()'"!:@]/g
+    });
   }
   next();
 });

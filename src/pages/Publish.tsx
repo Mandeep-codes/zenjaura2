@@ -58,6 +58,17 @@ const Publish = () => {
       return;
     }
 
+    // Validate files
+    if (!data.coverImage || !data.coverImage[0]) {
+      toast.error('Please upload a cover image');
+      return;
+    }
+    
+    if (!data.manuscriptFile || !data.manuscriptFile[0]) {
+      toast.error('Please upload a manuscript file');
+      return;
+    }
+
     try {
       setLoading(true);
       const formData = new FormData();
@@ -67,17 +78,15 @@ const Publish = () => {
       formData.append('genre', data.genre);
       formData.append('price', data.price.toString());
       formData.append('publishingPackage', selectedPackage);
-      formData.append('tags', JSON.stringify(data.tags.split(',').map(tag => tag.trim()).filter(Boolean)));
+      
+      // Handle tags safely
+      const tags = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+      formData.append('tags', JSON.stringify(tags));
       formData.append('coAuthors', JSON.stringify([]));
 
       
-      if (data.coverImage[0]) {
-        formData.append('coverImage', data.coverImage[0]);
-      }
-      
-      if (data.manuscriptFile[0]) {
-        formData.append('manuscriptFile', data.manuscriptFile[0]);
-      }
+      formData.append('coverImage', data.coverImage[0]);
+      formData.append('manuscriptFile', data.manuscriptFile[0]);
 
       await axios.post('/api/books/submit', formData, {
         headers: {
@@ -88,7 +97,8 @@ const Publish = () => {
       toast.success('Book submitted successfully! We\'ll review it and get back to you.');
       setStep(4); // Success step
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to submit book');
+      const message = error.response?.data?.message || error.message || 'Failed to submit book';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

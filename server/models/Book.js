@@ -25,11 +25,13 @@ const bookSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    maxlength: [200, 'Title cannot exceed 200 characters']
   },
   slug: {
     type: String,
-    unique: true
+    unique: true,
+    sparse: true
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
@@ -42,7 +44,8 @@ const bookSchema = new mongoose.Schema({
   }],
   synopsis: {
     type: String,
-    required: true
+    required: true,
+    maxlength: [2000, 'Synopsis cannot exceed 2000 characters']
   },
   genre: {
     type: String,
@@ -51,16 +54,29 @@ const bookSchema = new mongoose.Schema({
   },
   coverImage: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^https?:\/\/.+/.test(v);
+      },
+      message: 'Cover image must be a valid URL'
+    }
   },
   manuscriptFile: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^https?:\/\/.+/.test(v);
+      },
+      message: 'Manuscript file must be a valid URL'
+    }
   },
   price: {
     type: Number,
     required: true,
-    min: 0
+    min: [0, 'Price cannot be negative'],
+    max: [9999.99, 'Price cannot exceed $9999.99']
   },
   status: {
     type: String,
@@ -81,29 +97,40 @@ const bookSchema = new mongoose.Schema({
   }],
   adminFeedback: {
     type: String,
-    default: ''
+    default: '',
+    maxlength: [1000, 'Admin feedback cannot exceed 1000 characters']
   },
-  tags: [String],
+  tags: [{
+    type: String,
+    maxlength: [50, 'Tag cannot exceed 50 characters']
+  }],
   isbn: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
+    validate: {
+      validator: function(v) {
+        return !v || /^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/.test(v);
+      },
+      message: 'Invalid ISBN format'
+    }
   },
   pageCount: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'Page count cannot be negative']
   },
   publicationDate: {
     type: Date
   },
   sales: {
-    totalSold: { type: Number, default: 0 },
-    revenue: { type: Number, default: 0 }
+    totalSold: { type: Number, default: 0, min: 0 },
+    revenue: { type: Number, default: 0, min: 0 }
   },
   reviews: [reviewSchema],
   rating: {
-    average: { type: Number, default: 0 },
-    count: { type: Number, default: 0 }
+    average: { type: Number, default: 0, min: 0, max: 5 },
+    count: { type: Number, default: 0, min: 0 }
   },
   isActive: {
     type: Boolean,
@@ -113,9 +140,19 @@ const bookSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Index for better query performance
+bookSchema.index({ status: 1, isActive: 1 });
+bookSchema.index({ genre: 1 });
+bookSchema.index({ 'rating.average': -1 });
+bookSchema.index({ title: 'text', synopsis: 'text' });
+
 bookSchema.pre('save', function(next) {
   if (this.isModified('title') || !this.slug) {
-    this.slug = slugify(this.title, { lower: true, strict: true });
+    this.slug = slugify(this.title, { 
+      lower: true, 
+      strict: true,
+      remove: /[*+~.()'"!:@]/g
+    });
   }
   next();
 });

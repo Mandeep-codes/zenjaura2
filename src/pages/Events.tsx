@@ -88,6 +88,16 @@ const Events = () => {
       return;
     }
 
+    // Check if already registered
+    const alreadyRegistered = event.registeredUsers.some(
+      (reg: any) => reg.user === user.id || reg.user._id === user.id
+    );
+    
+    if (alreadyRegistered) {
+      toast.error('You are already registered for this event');
+      return;
+    }
+
     if (event.price === 0) {
       // Free event - register directly
       try {
@@ -107,7 +117,7 @@ const Events = () => {
           price: event.price
         });
       } catch (error) {
-        // Error handled in context
+        console.error('Failed to add event to cart:', error);
       }
     }
   };

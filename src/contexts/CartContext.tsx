@@ -91,6 +91,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addToCart = async (item: Omit<CartItem, '_id'>) => {
+    if (!isAuthenticated) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+    
     try {
       const response = await axios.post('/api/cart/add', item);
       dispatch({
@@ -100,15 +105,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           totalAmount: response.data.totalAmount
         }
       });
-      if (item.type === 'event') {
-        toast.success('Event added to cart');
-      } else if (item.type === 'book') {
-        toast.success('Book added to cart');
-      } else {
-        toast.success('Package added to cart');
-      }
+      
+      // More specific toast messages
+      const itemName = item.type === 'event' ? 'Event' : 
+                      item.type === 'book' ? 'Book' : 'Package';
+      toast.success(`${itemName} added to cart successfully!`);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to add item to cart');
+      const message = error.response?.data?.message || 'Failed to add item to cart';
+      toast.error(message);
+      throw error; // Re-throw for component handling
     }
   };
 
