@@ -88,9 +88,16 @@ const EventDetails = () => {
       }
     } else {
       // Paid event - redirect to add to cart
-      const { addToCart } = await import('../contexts/CartContext');
-      // This is now handled by the cart context properly
-      toast.info('Please add the event to cart to complete registration');
+      try {
+        await addToCart({
+          type: 'event',
+          event: event?._id,
+          quantity: 1,
+          price: event?.price || 0
+        });
+      } catch (error: any) {
+        toast.error('Failed to add event to cart');
+      }
     }
   };
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  baseURL: import.meta.env.VITE_API_URL || '/api'
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -17,8 +17,9 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      // Only redirect if not already on login page
-      if (window.location.pathname !== '/login') {
+      delete axios.defaults.headers.common['Authorization'];
+      // Only redirect if not already on auth pages
+      if (!['/login', '/register', '/forgot-password'].includes(window.location.pathname)) {
         window.location.href = '/login';
       }
     }

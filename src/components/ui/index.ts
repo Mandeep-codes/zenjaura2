@@ -5,7 +5,3 @@ export { default as GradientText } from './GradientText';
 export { default as ModernCard } from './ModernCard';
 export { default as ModernInput } from './ModernInput';
 export { default as AnimatedBackground } from './AnimatedBackground';
-export { default as LazyImage } from './LazyImage';
-export { default as SearchInput } from './SearchInput';
-export { default as Skeleton } from './Skeleton';
-export { default as Pagination } from './Pagination';
