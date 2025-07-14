@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./contexts/AuthContext";
+import { PaymentProvider } from "./contexts/PaymentContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -57,6 +58,7 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
+          <PaymentProvider>
           <CartProvider>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
               <Navbar />
@@ -182,6 +184,7 @@ function App() {
               }}
             />
           </CartProvider>
+          </PaymentProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>
