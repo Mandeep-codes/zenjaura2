@@ -58,8 +58,8 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <PaymentProvider>
           <CartProvider>
+            <PaymentProvider>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
               <Navbar />
               <main className="pt-24">
@@ -183,7 +183,7 @@ function App() {
                 },
               }}
             />
-          </CartProvider>
+            </PaymentProvider>
           </PaymentProvider>
         </AuthProvider>
       </ThemeProvider>
