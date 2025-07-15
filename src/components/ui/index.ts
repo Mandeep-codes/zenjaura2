@@ -7,3 +7,6 @@ export { default as ModernInput } from './ModernInput';
 export { default as AnimatedBackground } from './AnimatedBackground';
 export { default as Skeleton } from './Skeleton';
 export { default as Pagination } from './Pagination';
+export { default as LazyImage } from './LazyImage';
+export { default as SearchInput } from './SearchInput';
+export { default as QuickFilters } from './QuickFilters';

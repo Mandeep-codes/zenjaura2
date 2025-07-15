@@ -10,7 +10,11 @@ import {
   Award,
   Shield,
   CheckCircle,
-  Calendar
+  Calendar,
+  Search,
+  Filter,
+  Heart,
+  ShoppingCart
 } from 'lucide-react';
 import axios from 'axios';
 import { GlassCard, NeonButton, GradientText, ModernCard, AnimatedBackground } from '../components/ui';
@@ -31,6 +35,8 @@ interface FeaturedBook {
   rating: { average: number };
   price: number;
   slug: string;
+  discount?: number;
+  originalPrice?: number;
 }
 
 const Home = () => {
@@ -42,6 +48,7 @@ const Home = () => {
   });
   const [featuredBooks, setFeaturedBooks] = useState<FeaturedBook[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +81,12 @@ const Home = () => {
     fetchData();
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      window.location.href = `/books?search=${encodeURIComponent(searchTerm)}`;
+    }
+  };
   const features = [
     {
       icon: BookOpen,
@@ -157,6 +170,32 @@ const Home = () => {
               </p>
             </motion.div>
 
+            {/* Hero Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="max-w-2xl mx-auto mb-8"
+            >
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search for books, authors, or genres..."
+                    className="w-full pl-12 pr-32 py-4 text-lg border border-gray-300 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-lg"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -319,6 +358,29 @@ const Home = () => {
                       <div className="absolute top-4 right-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white px-3 py-1 rounded-full text-sm font-medium border border-gray-200 dark:border-gray-800">
                         {book.genre}
                       </div>
+                      
+                      {/* Discount Badge */}
+                      {book.discount && (
+                        <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                          -{book.discount}% OFF
+                        </div>
+                      )}
+                      
+                      {/* Quick Actions */}
+                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4">
+                        <button className="p-3 bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors">
+                          <Heart className="w-5 h-5" />
+                        </button>
+                        <Link
+                          to={`/books/${book.slug}`}
+                          className="p-3 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition-colors"
+                        >
+                          <BookOpen className="w-5 h-5" />
+                        </Link>
+                        <button className="p-3 bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors">
+                          <ShoppingCart className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                     
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
@@ -335,9 +397,20 @@ const Home = () => {
                           {book.rating.average.toFixed(1)}
                         </span>
                       </div>
-                      <span className="text-lg font-bold text-gray-900 dark:text-white">
-                        ${book.price}
-                      </span>
+                      <div className="text-right">
+                        {book.originalPrice && book.originalPrice > book.price ? (
+                          <div>
+                            <span className="text-sm text-gray-500 line-through">${book.originalPrice}</span>
+                            <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                              ${book.price}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-lg font-bold text-gray-900 dark:text-white">
+                            ${book.price}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
                     <Link to={`/books/${book.slug}`}>
