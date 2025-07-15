@@ -184,7 +184,7 @@ function App() {
               }}
             />
             </PaymentProvider>
-          </PaymentProvider>
+          </CartProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>
