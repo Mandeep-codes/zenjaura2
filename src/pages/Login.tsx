@@ -34,6 +34,10 @@ const Login = () => {
       return;
     }
 
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
     try {
       setLoading(true);
       await login(formData.email, formData.password);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Filter, Star, ShoppingCart, BookOpen, Search, Grid, List, SlidersHorizontal, Heart, Share2, Eye } from 'lucide-react';
-import axios from '../contexts/axiosInstance.js';
+import axios from '../contexts/axiosInstance';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';

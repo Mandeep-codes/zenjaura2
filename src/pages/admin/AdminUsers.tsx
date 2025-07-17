@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Shield, ShieldCheck, Mail, Calendar } from 'lucide-react';
-import axios from '../../contexts/axiosInstance.js';
+import axios from '../../contexts/axiosInstance';
 import toast from 'react-hot-toast';
 
 interface User {

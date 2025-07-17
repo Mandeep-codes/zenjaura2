@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import axios from './axiosInstance.js';
+import axios from './axiosInstance';
 import toast from 'react-hot-toast';
 
 interface User {
@@ -137,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
       toast.success(`Welcome back, ${user.name}!`);
@@ -160,6 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
       toast.success(`Welcome to Zenjaura, ${user.name}!`);

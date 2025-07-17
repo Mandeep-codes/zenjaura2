@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, BookOpen, Calendar, Package, Edit, Clock, CheckCircle, XCircle, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import axios from '../contexts/axiosInstance.js';
+import axios from '../contexts/axiosInstance';
 import toast from 'react-hot-toast';
 
 interface BookSubmission {

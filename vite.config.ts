@@ -7,11 +7,17 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
+        secure: false,
+        ws: true
       },
     },
   },
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify('http://localhost:5000/api')
+  }
 });

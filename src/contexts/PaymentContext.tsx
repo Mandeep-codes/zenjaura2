@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { useCart } from './CartContext';
 import { useAuth } from './AuthContext';
-import axios from './axiosInstance.js';
+import axios from './axiosInstance';
 import toast from 'react-hot-toast';
 
 interface PaymentState {

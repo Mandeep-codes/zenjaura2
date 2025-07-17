@@ -6,7 +6,7 @@ import {
   BookOpen, Users, Calendar, TrendingUp, Eye,
   CheckCircle, Clock, XCircle
 } from 'lucide-react';
-import axios from '../../contexts/axiosInstance.js';
+import axios from '../../contexts/axiosInstance';
 
 interface Stats {
   totalUsers: number;

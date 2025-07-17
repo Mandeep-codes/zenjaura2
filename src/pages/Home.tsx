@@ -55,7 +55,7 @@ const Home = () => {
       try {
         // Fetch stats with fallback
         try {
-          const statsRes = await axios.get('/api/books/stats');
+          const statsRes = await axios.get('http://localhost:5000/api/books/stats');
           setStats(statsRes.data);
         } catch (statsError) {
           console.warn('Failed to fetch stats:', statsError);
@@ -64,7 +64,7 @@ const Home = () => {
         
         // Fetch featured books with fallback
         try {
-          const booksRes = await axios.get('/api/books?featured=true&limit=6');
+          const booksRes = await axios.get('http://localhost:5000/api/books?featured=true&limit=6');
           setFeaturedBooks(booksRes.data.books || []);
         } catch (booksError) {
           console.warn('Failed to fetch featured books:', booksError);

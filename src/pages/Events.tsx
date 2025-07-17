@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Filter, Calendar, MapPin, Users, Clock, Video } from 'lucide-react';
-import axios from '../contexts/axiosInstance.js';
+import axios from '../contexts/axiosInstance';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { useAuth } from '../contexts/AuthContext'; // ✅ Import useAuth
+import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 
 interface Event {

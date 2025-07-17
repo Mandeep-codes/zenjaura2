@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, Clock, Video, ArrowLeft, User } from 'lucide-react';
-import axios from '../contexts/axiosInstance.js';
+import axios from '../contexts/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { format } from 'date-fns';

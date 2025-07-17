@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Bell, Check, X, BookOpen, Package, Calendar, AlertCircle, Info } from 'lucide-react';
-import axios from '../contexts/axiosInstance.js';
+import axios from '../contexts/axiosInstance';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 

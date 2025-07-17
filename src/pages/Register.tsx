@@ -34,6 +34,10 @@ const Register = () => {
       return;
     }
 
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -44,9 +48,13 @@ const Register = () => {
       return;
     }
 
+    if (formData.name.trim().length < 2) {
+      toast.error('Name must be at least 2 characters');
+      return;
+    }
     try {
       setLoading(true);
-      await registerUser(formData.name, formData.email, formData.password);
+      await registerUser(formData.name.trim(), formData.email.toLowerCase().trim(), formData.password);
       navigate('/');
     } catch (error) {
       // Error is handled in the context

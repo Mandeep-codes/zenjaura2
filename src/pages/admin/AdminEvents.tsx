@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Plus, Edit, Trash2, Users, MapPin, Clock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import axios from '../../contexts/axiosInstance.js';
+import axios from '../../contexts/axiosInstance';
 import toast from 'react-hot-toast';
 
 interface Event {

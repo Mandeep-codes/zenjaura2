@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users,BookOpen, Calendar, BarChart3 } from 'lucide-react';
-import axios from '../../contexts/axiosInstance.js';
+import axios from '../../contexts/axiosInstance';
 
 interface AnalyticsData {
   userRegistrations: Array<{

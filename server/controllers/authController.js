@@ -13,14 +13,17 @@ export const register = async (req, res) => {
 
     const { name, email, password } = req.body;
 
-    const userExists = await User.findOne({ email });
+    // Normalize email
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password
     });
 
@@ -40,7 +43,7 @@ export const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('Error during registration:', error);
 
     res.status(500).json({ message: 'Server error during registration' });
   }
@@ -55,7 +58,10 @@ export const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Normalize email for login
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -73,7 +79,9 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.avatar
+        avatar: user.avatar,
+        bio: user.bio,
+        preferences: user.preferences
       }
     });
   } catch (error) {
